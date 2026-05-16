@@ -30,7 +30,7 @@ export default function TarifaData({ tarifa }) {
                 <div className="bg-slate-600 text-white rounded-lg px-4 py-3 flex justify-between items-center">
                     <span>Monto</span>
                     <span className="bg-slate-300 text-gray-800 px-6 py-1 rounded-xl">
-                        $120
+                        {tarifa.precio}
                     </span>
                 </div>
             </div>

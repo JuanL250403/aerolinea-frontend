@@ -4,10 +4,17 @@ import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { peticionesAuth } from "../../../../api"
 import TarifaData from "./components/tarifaData"
+import { showToast } from "nextjs-toast-notify"
 export default function Reservar() {
     const [vueloTarifa, setVueloTarifa] = useState({})
     const searchParams = useSearchParams()
     const vueloTarifaId = searchParams.get("vueloTarifa")
+
+    const [realizarPago,setRealizarPago] = useState();
+    const [pasajero, setPasajero] = useState();
+    const [pasaporte, setPasaporte] = useState();
+    const [numeroAsiento, setNumeroAsiento] = useState();
+    const [fechaNacimiento, setfechaNacimiento] = useState()
 
     const obtenerVueloTarifa = async () => {
         peticionesAuth.get(`vuelos/tarifa/${vueloTarifaId}`)
@@ -18,6 +25,9 @@ export default function Reservar() {
         obtenerVueloTarifa()
     }, [])
 
+    const handleReservar = () => {
+        
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 px-6 py-10">
@@ -35,8 +45,8 @@ export default function Reservar() {
                             </label>
                             <input
                                 type="text"
-                                value="Emerson Ayala"
-                                readOnly
+                                placeholder="Pasajero"
+                                onChange={(t) => setPasajero(t)}
                                 className="w-full bg-gray-300 rounded-xl px-4 py-3 outline-none"
                             />
                         </div>
@@ -48,8 +58,8 @@ export default function Reservar() {
                                 </label>
                                 <input
                                     type="text"
-                                    value="ABC123456"
-                                    readOnly
+                                    placeholder="Pasaporte"
+                                    onChange={(t) => setPasaporte(t)}
                                     className="w-full bg-gray-300 rounded-xl px-4 py-3 outline-none"
                                 />
                             </div>
@@ -60,9 +70,9 @@ export default function Reservar() {
                                 </label>
                                 <div className="flex items-center bg-gray-300 rounded-xl px-4 py-3">
                                     <input
-                                        type="text"
-                                        value="12/03/2026"
-                                        readOnly
+                                        type="date"
+                                        placeholder="dd/mm/yyyy"
+                                        onChange={(t) => setfechaNacimiento(t)}
                                         className="w-full bg-transparent outline-none"
                                     />
                                     <i className="fa-solid fa-calendar text-gray-700"></i>
@@ -75,7 +85,8 @@ export default function Reservar() {
                                 Número de asiento (opcional)
                             </label>
                             <input
-                                type="text"
+                                type="number"
+                                onChange={(t) => setNumeroAsiento(Number(t))}
                                 className="w-full bg-gray-300 rounded-xl px-4 py-3 outline-none"
                             />
                         </div>
