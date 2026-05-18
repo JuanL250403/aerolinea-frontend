@@ -2,47 +2,72 @@
 
 import { useEffect, useState } from "react"
 import { peticionesAuth } from "../../../../api"
+import { showToast } from "nextjs-toast-notify"
 
 export default function RegistrarVuelo() {
     const [rutas, setRutas] = useState([])
     const [aviones, setAviones] = useState([])
     const [horarios, setHorarios] = useState([])
 
-    const [ruta, setRuta] = useState("")
-    const [avion, setAvion] = useState("")
-    const [horario, setHorario] = useState("")
+    const [ruta, setRuta] = useState(1)
+    const [avion, setAvion] = useState(1)
+    const [horario, setHorario] = useState(1)
     const [duracion, setDuracion] = useState("")
 
-    const [tarifas, setTarifas] = useState({
-        lite: 120,
-        estandar: 234,
-        flexi: 678,
-    })
+    const [tarifas, setTarifas] = useState([])
+
+    const [vueloTarifas, setVuelosTarifa] = useState([])
 
     const cargarDatos = async () => {
-        // peticionesAuth.get("/rutas").then((res) => setRutas(res.data))
-        // peticionesAuth.get("/aviones").then((res) => setAviones(res.data))
-        // peticionesAuth.get("/horarios").then((res) => setHorarios(res.data))
+        await peticionesAuth.get("/rutas").then((res) => setRutas(res.data))
+        await peticionesAuth.get("/aviones").then((res) => setAviones(res.data))
+        await peticionesAuth.get("/horarios").then((res) => setHorarios(res.data))
 
-        // Datos de ejemplo
-        setRutas(["España, Barcelona - EL Salvador, La libertad", "México, CDMX - El Salvador, San Salvador"])
-        setAviones(["Aurbus567 - Avianca", "Boeing737 - Copa Airlines"])
-        setHorarios(["12/09/2026 9:30 - 13/09/2026 11:50", "15/09/2026 8:00 - 16/09/2026 10:20"])
+        await cargarTarifas()
     }
 
-    const registrar = () => {
-        if (!ruta || !avion || !horario || !duracion) return
-        const payload = { ruta, avion, horario, duracion, tarifas }
-        console.log(payload)
-        // peticionesAuth.post("/vuelos", payload).then(...)
+    const cargarTarifas = async () => {
+        await peticionesAuth.get('/tarifas').then((response) => {
+            setTarifas(response.data)
+
+            const vTarifas = response.data.map((t) => {
+                return { tarifaId: t.id, precio: 0 }
+            })
+
+            setVuelosTarifa(vTarifas);
+        })
+    }
+
+    const handlerCambioPrecio = (tarifaId, precio) => {
+        const vTarifasNuevas = vueloTarifas.map(v => {
+            if (v.tarifaId == tarifaId) {
+                v.precio = precio
+                return v
+            } else {
+                return v
+            }
+        })
+
+        setVuelosTarifa(vTarifasNuevas)
+    }
+
+    const registrar = async () => {
+
+        const payload = { rutaId: ruta, avionId: avion, horarioId: horario, duracion, tarifas: vueloTarifas }
+        await peticionesAuth.post("/vuelos", payload)
+            .then((response) => showToast.success('Vuelo registrado'))
     }
 
     useEffect(() => {
         cargarDatos()
     }, [])
 
+    useEffect(() => {
+        console.log({ ruta, avion, horario, duracion, vueloTarifas })
+    }, [ruta])
+
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen w-full bg-white">
 
             {/* Navbar */}
             <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
@@ -71,11 +96,11 @@ export default function RegistrarVuelo() {
                             <select
                                 className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm outline-none appearance-none cursor-pointer"
                                 value={ruta}
-                                onChange={(e) => setRuta(e.target.value)}
+                                onChange={(e) => setRuta(Number(e.target.value))}
                             >
                                 <option value="">Selecciona una ruta</option>
                                 {rutas.map((r, i) => (
-                                    <option key={i} value={r}>{r}</option>
+                                    <option key={i} value={r.id}>{r.origen} - {r.destino}</option>
                                 ))}
                             </select>
                         </div>
@@ -86,11 +111,11 @@ export default function RegistrarVuelo() {
                             <select
                                 className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm outline-none appearance-none cursor-pointer"
                                 value={avion}
-                                onChange={(e) => setAvion(e.target.value)}
+                                onChange={(e) => setAvion(Number(e.target.value))}
                             >
                                 <option value="">Selecciona un avión</option>
                                 {aviones.map((a, i) => (
-                                    <option key={i} value={a}>{a}</option>
+                                    <option key={i} value={a.id}>{a.nombre}</option>
                                 ))}
                             </select>
                         </div>
@@ -99,13 +124,13 @@ export default function RegistrarVuelo() {
                         <div>
                             <label className="block text-sm text-gray-700 mb-1.5">Horario</label>
                             <select
-                                className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm outline-none appearance-none cursor-pointer"
                                 value={horario}
-                                onChange={(e) => setHorario(e.target.value)}
+                                className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm outline-none appearance-none cursor-pointer"
+                                onChange={(e) => setHorario(Number(e.target.value))}
                             >
                                 <option value="">Selecciona un horario</option>
                                 {horarios.map((h, i) => (
-                                    <option key={i} value={h}>{h}</option>
+                                    <option key={i} value={h.id}>{new Date(h.fechaHoraSalida).toLocaleString()} - {new Date(h.fechaHoraLlegada).toLocaleString() }</option>
                                 ))}
                             </select>
                         </div>
@@ -117,7 +142,7 @@ export default function RegistrarVuelo() {
                                 type="number"
                                 placeholder="12"
                                 value={duracion}
-                                onChange={(e) => setDuracion(e.target.value)}
+                                onChange={(e) => setDuracion(Number(e.target.value))}
                                 className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm outline-none"
                             />
                         </div>
@@ -139,23 +164,19 @@ export default function RegistrarVuelo() {
                             Definir tarifas
                         </h2>
                         <div className="flex flex-col gap-3">
-                            {[
-                                { key: "lite", label: "Lite" },
-                                { key: "estandar", label: "Estandar" },
-                                { key: "flexi", label: "Flexi" },
-                            ].map(({ key, label }) => (
+                            {tarifas.map((tarifa, index) => (
                                 <div
-                                    key={key}
+                                    key={index}
                                     className="bg-slate-600 text-white rounded-lg flex items-center justify-between px-4 py-3"
                                 >
-                                    <span className="text-sm">{label}</span>
+                                    <span className="text-sm">{tarifa?.nombre}</span>
                                     <div className="bg-slate-500 rounded-md px-3 py-1 flex items-center">
                                         <span className="text-sm font-medium">$</span>
                                         <input
                                             type="number"
-                                            value={tarifas[key]}
+                                            placeholder="0"
                                             onChange={(e) =>
-                                                setTarifas({ ...tarifas, [key]: e.target.value })
+                                                handlerCambioPrecio(tarifa.id, Number(e.target.value))
                                             }
                                             className="bg-transparent outline-none w-14 text-sm font-medium text-right"
                                         />

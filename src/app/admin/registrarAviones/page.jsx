@@ -1,49 +1,60 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { peticionesAuth } from "../../../../../api"
-
-const tiposAvion = [
-    "Fuselaje estrecho",
-    "Fuselaje Amplio",
-    "Regional",
-    "Turbohélice",
-]
-
-const avionesEjemplo = [
-    { id: 1, nombre: "Airbus567", tipo: "Fuselaje Estrecho", asientosOcupados: 120, capacidadAsiento: 320 },
-    { id: 2, nombre: "Airbus567", tipo: "Fuselaje Estrecho", asientosOcupados: 120, capacidadAsiento: 320 },
-    { id: 3, nombre: "Airbus567", tipo: "Fuselaje Estrecho", asientosOcupados: 120, capacidadAsiento: 320 },
-]
+import { useRouter, useSearchParams } from "next/navigation"
+import { peticionesAuth } from "../../../../api"
+import { showToast } from "nextjs-toast-notify"
 
 export default function RegistrarAviones() {
     const [nombre, setNombre] = useState("")
-    const [tipo, setTipo] = useState("Fuselaje estrecho")
-    const [capacidad, setCapacidad] = useState("")
-    const [aviones, setAviones] = useState(avionesEjemplo)
-    const [nombreAerolinea] = useState("Avianca")
+    const [tipoAvionId, setTipoAvionId] = useState(1)
+    const [tipoAvion, setTipoAvion] = useState()
+    const [cargando, setCargando] = useState(true)
+    const [capacidadAsientos, setCapacidadAsientos] = useState([])
+
+    const [aviones, setAviones] = useState([])
+    const [aerolinea, setAerolinea] = useState()
 
     const router = useRouter()
-    const params = useParams()
+    const searchParams = useSearchParams()
+    const aerolineaId = searchParams.get('aerolinea')
 
     const agregar = () => {
-        if (!nombre || !tipo || !capacidad) return
+        if (!nombre || !tipoAvionId || !capacidadAsientos) return
         const nuevo = {
-            id: Date.now(),
             nombre,
-            tipo,
-            asientosOcupados: 0,
-            capacidadAsiento: Number(capacidad),
+            tipoAvionId,
+            tipoAvion,
+            capacidadAsientos
         }
         setAviones([...aviones, nuevo])
         setNombre("")
-        setCapacidad("")
+        setTipoAvionId(1)
+        setCapacidadAsientos(0)
     }
 
-    const registrar = () => {
-        console.log("Registrar aviones:", aviones)
-        // peticionesAuth.post(`/aerolineas/${params.id}/aviones`, { aviones }).then(...)
+    const cargarDatos = async () => {
+        setCargando(true)
+        await peticionesAuth.get(`aerolineas/${aerolineaId}`).then((response) => setAerolinea(response.data))
+        setCargando(false)
+    }
+
+    const handlerTipoAvion = (e) => {
+        setTipoAvion(e.target[e.target.value].text)
+        setTipoAvionId(Number(e.target.value))
+    }
+
+    const registrar = async () => {
+        const avionesRegistro = aviones.map((a) => {
+            return {
+                capacidadAsientos: a.capacidadAsientos,
+                nombre: a.nombre,
+                aerolineaId: aerolineaId,
+                tipoAvionId: a.tipoAvionId
+            }
+        })
+
+        await peticionesAuth.post(`aviones`,  avionesRegistro ).then((response) => showToast.success('Aviones registrados'))
     }
 
     const cancelar = () => {
@@ -51,25 +62,26 @@ export default function RegistrarAviones() {
     }
 
     useEffect(() => {
+        cargarDatos()
         // peticionesAuth.get(`/aerolineas/${params.id}/aviones`).then((res) => setAviones(res.data))
     }, [])
 
-    return (
-        <div className="min-h-screen bg-white">
+    if (cargando) {
+        return (
+            <div className="min-h-screen w-full bg-white">
+                <h1 className="text-center text-2xl text-gray-800 mb-10">
+                    Cargando aerolinea
+                </h1>
+            </div>
+        )
+    }
 
-            {/* Navbar */}
-            <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Rol usuario <i className="fa-solid fa-shield-halved"></i>
-                </span>
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Nombre usuario <i className="fa-solid fa-user"></i>
-                </span>
-            </nav>
+    return (
+        <div className="min-h-screen w-full bg-white">
 
             <div className="max-w-3xl mx-auto px-6 pt-10">
                 <h1 className="text-center text-2xl text-gray-800 mb-10">
-                    Registrar aviones de aerolínea <strong>{nombreAerolinea}</strong>
+                    Registrar aviones de aerolínea <strong>{aerolinea.nombre}</strong>
                 </h1>
 
                 <div className="flex gap-10">
@@ -91,13 +103,15 @@ export default function RegistrarAviones() {
                         <div>
                             <label className="block text-sm text-gray-700 mb-1.5">Tipo</label>
                             <select
-                                value={tipo}
-                                onChange={(e) => setTipo(e.target.value)}
+                                value={tipoAvionId}
+                                onChange={(e) => handlerTipoAvion(e)}
                                 className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm text-gray-700 outline-none appearance-none cursor-pointer"
                             >
-                                {tiposAvion.map((t, i) => (
-                                    <option key={i} value={t}>{t}</option>
-                                ))}
+                                <option value="1">Boeing 737</option>
+                                <option value="2">Airbus A320</option>
+                                <option value="3">Boeing 777</option>
+                                <option value="4">Embraer 190</option>
+                                <option value="5">Boeing 747</option>
                             </select>
                         </div>
 
@@ -107,8 +121,8 @@ export default function RegistrarAviones() {
                             <input
                                 type="number"
                                 placeholder="145"
-                                value={capacidad}
-                                onChange={(e) => setCapacidad(e.target.value)}
+                                value={capacidadAsientos}
+                                onChange={(e) => setCapacidadAsientos(Number(e.target.value))}
                                 className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm text-gray-700 outline-none"
                             />
                         </div>
@@ -142,25 +156,23 @@ export default function RegistrarAviones() {
                     <div className="grid grid-cols-4 bg-slate-500 text-white text-sm px-4 py-2.5">
                         <span>Nombre</span>
                         <span>Tipo</span>
-                        <span>Asientos ocupados</span>
                         <span>Capacidad asiento</span>
                     </div>
 
-                    {aviones.map((avion) => (
+
+                    {aviones.map((avion, index) => (
                         <div
-                            key={avion.id}
+                            key={index}
                             className="grid grid-cols-4 text-sm px-4 py-3 text-gray-700 border-b border-gray-200 last:border-b-0"
                         >
                             <span>{avion.nombre}</span>
-                            <span>{avion.tipo}</span>
-                            <span>{avion.asientosOcupados}</span>
-                            <span>{avion.capacidadAsiento}</span>
+                            <span>{avion.tipoAvion}</span>
+                            <span>{avion.capacidadAsientos}</span>
                         </div>
                     ))}
-
-                    <div className="h-10"></div>
+                    < div className="h-10"></div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

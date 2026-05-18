@@ -36,7 +36,7 @@ export default function InicioUsuario() {
     }
 
     const buscarVuelos = () => {
-        if(!origen || !destino || !fechaHoraSalida){
+        if (!origen || !destino || !fechaHoraSalida) {
             return
         }
         router.push(`/usuario/vuelos?origen=${origen}&destino=${destino}&fechaHora=${fechaHoraSalida}`)
@@ -54,7 +54,7 @@ export default function InicioUsuario() {
 
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen w-full bg-white">
 
             {/* Hero */}
             <section className="bg-gray-600 text-white text-center py-20">
@@ -105,7 +105,7 @@ export default function InicioUsuario() {
                         </div>
                     </div>
                 </div>
-                <br/>
+                <br />
                 <div className="flex justify-center">
                     <button onClick={() => buscarVuelos()} className="bg-slate-900 text-white px-16 py-3 rounded-full w-full md:w-3/4">
                         Buscar vuelos
@@ -118,9 +118,8 @@ export default function InicioUsuario() {
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-12">
                     {/* Reservas */}
                     <div className="flex justify-center">
-                        <div className="bg-slate-600 w-40 h-40 rounded-md flex flex-col items-center justify-center text-white shadow-md">
-                            <i className="fa-solid fa-ticket text-6xl mb-4"></i>
-                            <span className="text-sm">Tus reservas</span>
+                        <div onClick={() => router.push('/usuario/reservas')} className="bg-slate-600 w-40 h-40 rounded-md flex flex-col items-center justify-center text-white shadow-md cursor-pointer">
+                            <span className="text-4x1">Tus reservas</span>
                         </div>
                     </div>
 
@@ -133,16 +132,9 @@ export default function InicioUsuario() {
                             Comuníquese con nuestro centro de <br />
                             quejas y estaremos alegres de atenderle
                         </p>
-                        <button className="bg-slate-800 text-white px-10 py-2 rounded-full hover:bg-slate-700">
+                        <a href="reclamo" className="bg-slate-800 text-white px-10 py-2 rounded-full hover:bg-slate-700">
                             Enviar queja
-                        </button>
-                    </div>
-
-                    {/* Contacto */}
-                    <div className="flex justify-center">
-                        <div className="bg-sky-700 w-40 h-40 rounded-md flex items-center justify-center text-white shadow-md">
-                            <i className="fa-solid fa-envelope text-6xl"></i>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </section>

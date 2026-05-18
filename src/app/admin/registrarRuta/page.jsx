@@ -2,20 +2,19 @@
 
 import { useState } from "react"
 import { peticionesAuth } from "../../../../api"
+import { showToast } from "nextjs-toast-notify"
 
 export default function RegistrarRuta() {
     const [origen, setOrigen] = useState("")
     const [destino, setDestino] = useState("")
 
     const registrar = () => {
-        if (!origen || !destino) return
         const payload = { origen, destino }
-        console.log(payload)
-        // peticionesAuth.post("/rutas", payload).then(...)
+        peticionesAuth.post("/rutas", payload).then((response) => showToast.success('Ruta registrada'))
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen w-full bg-white">
 
             {/* Navbar */}
             <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">

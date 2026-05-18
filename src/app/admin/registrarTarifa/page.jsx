@@ -2,32 +2,23 @@
 
 import { useState } from "react"
 import { peticionesAuth } from "../../../../api"
+import { showToast } from "nextjs-toast-notify"
 
 export default function RegistrarTarifa() {
-    const [tipo, setTipo] = useState("")
-    const [permiteCambios, setPermiteCambios] = useState(false)
-    const [permiteCancelacion, setPermiteCancelacion] = useState(false)
+    const [nombre, setNombre] = useState("")
+    const [cambios, setCambios] = useState(false)
+    const [cancelacion, setCancelacion] = useState(false)
     const [descripcion, setDescripcion] = useState("")
 
     const registrar = () => {
-        if (!tipo || !descripcion) return
-        const payload = { tipo, permiteCambios, permiteCancelacion, descripcion }
+
+        const payload = { nombre, cambios, cancelacion, descripcion }
         console.log(payload)
-        // peticionesAuth.post("/tarifas", payload).then(...)
+        peticionesAuth.post("/tarifas", payload).then(() => showToast.success("Tarifa registrada"))
     }
 
     return (
-        <div className="min-h-screen bg-white">
-
-            {/* Navbar */}
-            <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Rol usuario <i className="fa-solid fa-shield-halved"></i>
-                </span>
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Nombre usuario <i className="fa-solid fa-user"></i>
-                </span>
-            </nav>
+        <div className="min-h-screen w-full bg-white">
 
             {/* Contenido */}
             <div className="max-w-lg mx-auto px-6 pt-12">
@@ -45,8 +36,8 @@ export default function RegistrarTarifa() {
                         <input
                             type="text"
                             placeholder="Lite"
-                            value={tipo}
-                            onChange={(e) => setTipo(e.target.value)}
+                            value={nombre}
+                            onChange={(e) => setNombre(e.target.value)}
                             className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm text-gray-700 outline-none"
                         />
                     </div>
@@ -57,8 +48,8 @@ export default function RegistrarTarifa() {
                             Permite cambios
                             <input
                                 type="checkbox"
-                                checked={permiteCambios}
-                                onChange={(e) => setPermiteCambios(e.target.checked)}
+                                checked={cambios}
+                                onChange={(e) => setCambios(e.target.checked)}
                                 className="w-5 h-5 rounded-full accent-slate-700 cursor-pointer"
                             />
                         </label>
@@ -66,8 +57,8 @@ export default function RegistrarTarifa() {
                             Permite cancelación
                             <input
                                 type="checkbox"
-                                checked={permiteCancelacion}
-                                onChange={(e) => setPermiteCancelacion(e.target.checked)}
+                                checked={cancelacion}
+                                onChange={(e) => setCancelacion(e.target.checked)}
                                 className="w-5 h-5 rounded-full accent-slate-700 cursor-pointer"
                             />
                         </label>

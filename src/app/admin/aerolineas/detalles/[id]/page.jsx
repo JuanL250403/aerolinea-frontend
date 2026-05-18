@@ -2,53 +2,39 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { peticionesAuth } from "../../../../../api"
-
-const aerolineaEjemplo = {
-    id: 1,
-    nombre: "Avianca",
-    nacionalidad: "Costa Rica",
-    aviones: [
-        { id: 1, nombre: "Airbus567", tipo: "Fuselaje Amplio", asientosDisponibles: 120, capacidadAsiento: 320, estado: "En Servicio" },
-        { id: 2, nombre: "Airbus567", tipo: "Fuselaje Amplio", asientosDisponibles: 120, capacidadAsiento: 320, estado: "En Servicio" },
-        { id: 3, nombre: "Airbus567", tipo: "Fuselaje Amplio", asientosDisponibles: 120, capacidadAsiento: 320, estado: "En Servicio" },
-        { id: 4, nombre: "Airbus567", tipo: "Fuselaje Amplio", asientosDisponibles: 120, capacidadAsiento: 320, estado: "En Servicio" },
-        { id: 5, nombre: "Airbus567", tipo: "Fuselaje Amplio", asientosDisponibles: 120, capacidadAsiento: 320, estado: "En Servicio" },
-    ]
-}
+import { peticionesAuth } from "../../../../../../api"
+import Cargando from "@/app/components/cargando"
 
 export default function DetalleAerolinea() {
-    const [aerolinea, setAerolinea] = useState(aerolineaEjemplo)
+    const [aerolinea, setAerolinea] = useState()
+    const [cargando, setCargando] = useState(true)
     const router = useRouter()
     const params = useParams()
 
     useEffect(() => {
-        // peticionesAuth.get(`/aerolineas/${params.id}`).then((res) => setAerolinea(res.data))
+        cargarDatos()
     }, [])
 
-    return (
-        <div className="min-h-screen bg-white">
+    const cargarDatos = async () => {
+        setCargando(true)
+        await peticionesAuth.get(`/aerolineas/${params.id}`).then((res) => setAerolinea(res.data))
+        setCargando(false)
+    }
 
-            {/* Navbar */}
-            <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Rol usuario <i className="fa-solid fa-shield-halved"></i>
-                </span>
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Nombre usuario <i className="fa-solid fa-user"></i>
-                </span>
-            </nav>
+    if(cargando){
+        return(
+            <Cargando/>
+        )
+    }
+
+    return (
+        <div className="min-h-screen w-full bg-white">
 
             <div className="max-w-4xl mx-auto px-6 pt-8">
                 <h2 className="text-center text-lg text-gray-600 mb-6">Aerolínea</h2>
 
                 {/* Info principal */}
                 <div className="flex items-start gap-10 mb-6">
-
-                    {/* Card imagen */}
-                    <div className="bg-slate-600 rounded-xl w-48 h-56 flex items-center justify-center shrink-0">
-                        <i className="fa-solid fa-earth-americas text-white text-7xl"></i>
-                    </div>
 
                     {/* Nombre, nacionalidad y botón */}
                     <div className="flex-1 flex flex-col justify-between h-56">
@@ -64,10 +50,16 @@ export default function DetalleAerolinea() {
 
                         <div className="flex justify-end">
                             <button
-                                onClick={() => router.push(`/admin/aerolineas/${aerolinea.id}/aviones/registrar`)}
+                                onClick={() => router.push(`/admin/registrarAviones?aerolinea=${aerolinea.id}`)}
                                 className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-8 py-3 text-sm font-medium cursor-pointer transition-colors"
                             >
                                 Registrar aviones
+                            </button>
+                            <button
+                                onClick={() => router.push(`/admin/aerolineas`)}
+                                className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-8 py-3 text-sm font-medium cursor-pointer transition-colors"
+                            >
+                                Ver aerolineas
                             </button>
                         </div>
                     </div>
@@ -89,11 +81,11 @@ export default function DetalleAerolinea() {
                         <div
                             key={avion.id}
                             className="grid grid-cols-5 text-sm px-4 py-3 text-gray-700 border-b border-gray-200 last:border-b-0"
-                        >
+                        >   
                             <span>{avion.nombre}</span>
                             <span>{avion.tipo}</span>
                             <span>{avion.asientosDisponibles}</span>
-                            <span>{avion.capacidadAsiento}</span>
+                            <span>{avion.capacidadAsientos}</span>
                             <span>{avion.estado}</span>
                         </div>
                     ))}

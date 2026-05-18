@@ -2,33 +2,35 @@
 
 import { useEffect, useState } from "react"
 import { peticionesAuth } from "../../../../api"
-
-const rutasEjemplo = [
-    { origen: "El Salvador, La Libertad", destino: "España, Madrid" },
-    { origen: "El Salvador, La Libertad", destino: "España, Madrid" },
-    { origen: "El Salvador, La Libertad", destino: "España, Madrid" },
-    { origen: "El Salvador, La Libertad", destino: "España, Madrid" },
-]
+import { useRouter } from "next/navigation"
+import Cargando from "@/app/components/cargando"
 
 export default function RutasRegistradas() {
-    const [rutas, setRutas] = useState(rutasEjemplo)
+    const router = useRouter()
+    
+    const [rutas, setRutas] = useState([])
+
+    const cargarRutas = async () => {
+        await peticionesAuth.get('rutas').then((response) => setRutas(response.data))
+    }
+
+    const handlerRegistrarRuta = () => {
+        router.push('/admin/registrarRuta')
+    }
 
     useEffect(() => {
-        // peticionesAuth.get("/rutas").then((res) => setRutas(res.data))
+        cargarRutas()
     }, [])
 
-    return (
-        <div className="min-h-screen bg-white">
+    if (rutas.length === 0) {
+        return (
+            <Cargando/>
+        )
+    }
 
-            {/* Navbar */}
-            <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Rol usuario <i className="fa-solid fa-shield-halved"></i>
-                </span>
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Nombre usuario <i className="fa-solid fa-user"></i>
-                </span>
-            </nav>
+
+    return (
+        <div className="min-h-screen w-full bg-white">
 
             {/* Contenido */}
             <div className="max-w-3xl mx-auto px-6 pt-12">
@@ -38,10 +40,10 @@ export default function RutasRegistradas() {
 
                 <div className="flex justify-center mb-8">
                     <button
-                        onClick={() => {/* router.push("/admin/rutas/registrar") */}}
+                        onClick={() => handlerRegistrarRuta()}
                         className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 py-3 text-sm font-medium cursor-pointer transition-colors"
                     >
-                        Registrar tarifa
+                        Registrar ruta
                     </button>
                 </div>
 

@@ -2,48 +2,34 @@
 
 import { useEffect, useState } from "react"
 import { peticionesAuth } from "../../../../api"
-
-const reclamosEjemplo = [
-    {
-        id: 1,
-        usuario: "Nombre de usuario",
-        fecha: "01/02/2026",
-        descripcion: "Descripcion de reclamo",
-    },
-    {
-        id: 2,
-        usuario: "Nombre de usuario",
-        fecha: "01/02/2026",
-        descripcion: "Descripcion de reclamo",
-    },
-]
+import SinDatos from "@/app/components/sinDatos"
+import Cargando from "@/app/components/cargando"
 
 export default function ReclamosRealizados() {
-    const [reclamos, setReclamos] = useState(reclamosEjemplo)
+    const [reclamos, setReclamos] = useState([])
     const [busqueda, setBusqueda] = useState("")
 
-    const buscarReclamo = () => {
+    const buscarReclamo = async () => {
         if (!busqueda) return
-        // peticionesAuth.get(`/reclamos?usuario=${busqueda}`).then((res) => setReclamos(res.data))
-        console.log("Buscar reclamos de:", busqueda)
+        await peticionesAuth.get(`/reclamos?usuario=${busqueda}`).then((res) => setReclamos(res.data))
+    }
+
+    const cargarReclamos = async () => {
+        await peticionesAuth.get("/reclamos").then((res) => setReclamos(res.data))
     }
 
     useEffect(() => {
-        // peticionesAuth.get("/reclamos").then((res) => setReclamos(res.data))
+        cargarReclamos()
     }, [])
 
-    return (
-        <div className="min-h-screen bg-white">
+    if(reclamos.length === 0){
+        return(
+            <Cargando/>
+        )
+    }
 
-            {/* Navbar */}
-            <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Rol usuario <i className="fa-solid fa-shield-halved"></i>
-                </span>
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Nombre usuario <i className="fa-solid fa-user"></i>
-                </span>
-            </nav>
+    return (
+        <div className="min-h-screen w-full bg-white">
 
             {/* Encabezado y buscador */}
             <div className="max-w-3xl mx-auto px-6 pt-8">
@@ -78,12 +64,12 @@ export default function ReclamosRealizados() {
                             className="border border-gray-300 rounded-xl p-6 flex gap-8"
                         >
                             {/* Columna izquierda: fecha */}
-                            <div className="w-44 shrink-0">
-                                <h3 className="font-semibold text-gray-800 mb-2 text-sm">
+                            <div className="w-50 shrink-0">
+                                <h3 className="font-semibo text-gray-800 mb-2 text-sm">
                                     Fecha de reclamo
                                 </h3>
                                 <div className="bg-slate-500 text-white rounded-lg px-4 py-2.5 text-sm">
-                                    {reclamo.fecha}
+                                    {new Date(reclamo.fechaReclamo).toLocaleString()}
                                 </div>
                             </div>
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import VueloCard from "./components/vueloCard";
 import { peticionesAuth } from "../../../../api";
 import { useSearchParams, useRouter } from "next/navigation";
+import Cargando from "@/app/components/cargando";
 
 export default function Vuelos() {
 
@@ -21,6 +22,7 @@ export default function Vuelos() {
     const obtenerVuelos = async () => {
         await peticionesAuth.get("/vuelos", {
             params: {
+                activos: true,
                 origen,
                 destino,
                 fechaSalida: fechaHoraSalida
@@ -33,7 +35,7 @@ export default function Vuelos() {
         if (!origen || !destino || !fechaHoraSalida) {
             return
         }
-        router.push(`/usuario/vuelos?origen=${origen}&destino=${destino}&fechaHora=${fechaHoraSalida}`)
+        router.push(`/usuario/vuelos?activos=true&origen=${origen}&destino=${destino}&fechaHora=${fechaHoraSalida}`)
 
         await obtenerVuelos()
     }
@@ -66,7 +68,7 @@ export default function Vuelos() {
     }, [])
 
     return (
-        <div className="min-h-screen bg-gray-100 px-6 py-6">
+        <div className="min-h-screen w-full bg-white px-6 py-6">
             {/* Título */}
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-semibold text-gray-700">
