@@ -35,8 +35,12 @@ peticionesAuth.interceptors.response.use(
     switch (estatus) {
       case 400:
         if (respuesta) {
+          let anterior = "";
           respuesta.forEach((r) => {
-            showToast.warning(r.descripcion);
+            if (anterior != r.descripcion) {
+              showToast.warning(r.descripcion);
+            }
+            anterior = r.descripcion;
           });
         }
         break;
@@ -45,8 +49,17 @@ peticionesAuth.interceptors.response.use(
           showToast.error(respuesta[0].descripcion);
         }
         break;
+      case 403:
+        showToast.error("Su sesion ha expirado");
+        window.location.href = "/";
+        break;
+      case 409:
+        if (respuesta) {
+          showToast.error(respuesta[0].descripcion);
+        }
+        break;
       default:
-        showToast.error(error.response.data.errores[0].descripcion);
+        showToast.error("Ocurrio un error inesperado");
         break;
     }
     return Promise.reject(error);

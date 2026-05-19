@@ -36,7 +36,7 @@ export default function VueloCard({vuelo}) {
                     </li>
                     <li className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-gray-400 shrink-0"></span>
-                        Duración de vuelo: {vuelo.duracion}
+                        Duración de vuelo: {vuelo.duracion} horas
                     </li>
                     <li className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-gray-400 shrink-0"></span>

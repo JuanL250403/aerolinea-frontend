@@ -9,10 +9,9 @@ export default function RegistrarVuelo() {
     const [aviones, setAviones] = useState([])
     const [horarios, setHorarios] = useState([])
 
-    const [ruta, setRuta] = useState(1)
-    const [avion, setAvion] = useState(1)
-    const [horario, setHorario] = useState(1)
-    const [duracion, setDuracion] = useState("")
+    const [ruta, setRuta] = useState(0)
+    const [avion, setAvion] = useState(0)
+    const [horario, setHorario] = useState(0)
 
     const [tarifas, setTarifas] = useState([])
 
@@ -21,10 +20,10 @@ export default function RegistrarVuelo() {
     const cargarDatos = async () => {
         await peticionesAuth.get("/rutas").then((res) => setRutas(res.data))
         await peticionesAuth.get("/aviones").then((res) => setAviones(res.data))
-        await peticionesAuth.get("/horarios").then((res) => setHorarios(res.data))
+        await peticionesAuth.get("/horarios/validos").then((res) => setHorarios(res.data))
 
         await cargarTarifas()
-    }
+    }   
 
     const cargarTarifas = async () => {
         await peticionesAuth.get('/tarifas').then((response) => {
@@ -53,7 +52,7 @@ export default function RegistrarVuelo() {
 
     const registrar = async () => {
 
-        const payload = { rutaId: ruta, avionId: avion, horarioId: horario, duracion, tarifas: vueloTarifas }
+        const payload = { rutaId: ruta, avionId: avion, horarioId: horario, tarifas: vueloTarifas }
         await peticionesAuth.post("/vuelos", payload)
             .then((response) => showToast.success('Vuelo registrado'))
     }
@@ -62,22 +61,9 @@ export default function RegistrarVuelo() {
         cargarDatos()
     }, [])
 
-    useEffect(() => {
-        console.log({ ruta, avion, horario, duracion, vueloTarifas })
-    }, [ruta])
 
     return (
         <div className="min-h-screen w-full bg-white">
-
-            {/* Navbar */}
-            <nav className="flex justify-end items-center gap-6 px-8 py-3 border-b border-gray-200">
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Rol usuario <i className="fa-solid fa-shield-halved"></i>
-                </span>
-                <span className="flex items-center gap-2 text-sm text-gray-600">
-                    Nombre usuario <i className="fa-solid fa-user"></i>
-                </span>
-            </nav>
 
             {/* Contenido */}
             <div className="max-w-3xl mx-auto px-6 pt-10">
@@ -113,7 +99,7 @@ export default function RegistrarVuelo() {
                                 value={avion}
                                 onChange={(e) => setAvion(Number(e.target.value))}
                             >
-                                <option value="">Selecciona un avión</option>
+                                <option selected>Selecciona un avión</option>
                                 {aviones.map((a, i) => (
                                     <option key={i} value={a.id}>{a.nombre}</option>
                                 ))}
@@ -133,18 +119,6 @@ export default function RegistrarVuelo() {
                                     <option key={i} value={h.id}>{new Date(h.fechaHoraSalida).toLocaleString()} - {new Date(h.fechaHoraLlegada).toLocaleString() }</option>
                                 ))}
                             </select>
-                        </div>
-
-                        {/* Duración */}
-                        <div>
-                            <label className="block text-sm text-gray-700 mb-1.5">Duación (horas)</label>
-                            <input
-                                type="number"
-                                placeholder="12"
-                                value={duracion}
-                                onChange={(e) => setDuracion(Number(e.target.value))}
-                                className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm outline-none"
-                            />
                         </div>
 
                         {/* Botón registrar */}

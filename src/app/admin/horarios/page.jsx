@@ -51,19 +51,21 @@ export default function TarifasRegistradas() {
                 {/* Tabla */}
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                     {/* Encabezado */}
-                    <div className="grid grid-cols-2 bg-slate-600 text-white text-sm px-4 py-2.5">
+                    <div className="grid grid-cols-3 bg-slate-600 text-white text-sm px-4 py-2.5">
                         <span>Fecha y hora de Salida</span>
                         <span>Fecha y hora de Llegada</span>
+                        <span>Duracion de vuelo</span>
                     </div>
 
                     {/* Filas */}
                     {horarios.map((horario, index) => (
                         <div
                             key={index}
-                            className={`grid grid-cols-2 text-sm px-4 py-3 text-gray-700 border-b border-gray-200 last:border-b-0`}
+                            className={`grid grid-cols-3 text-sm px-4 py-3 text-gray-700 border-b border-gray-200 last:border-b-0`}
                         >
                             <span>{new Date(horario.fechaHoraSalida).toLocaleString()}</span>
                             <span>{new Date(horario.fechaHoraLlegada).toLocaleString()}</span>
+                            <span>{horario.duracion}</span>
                         </div>
                     ))}
 

@@ -4,10 +4,11 @@ import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { peticionesAuth } from "../../../../api"
 import { showToast } from "nextjs-toast-notify"
+import Cargando from "@/app/components/cargando"
 
 export default function RegistrarAviones() {
     const [nombre, setNombre] = useState("")
-    const [tipoAvionId, setTipoAvionId] = useState(1)
+    const [tipoAvionId, setTipoAvionId] = useState(0)
     const [tipoAvion, setTipoAvion] = useState()
     const [cargando, setCargando] = useState(true)
     const [capacidadAsientos, setCapacidadAsientos] = useState([])
@@ -29,7 +30,7 @@ export default function RegistrarAviones() {
         }
         setAviones([...aviones, nuevo])
         setNombre("")
-        setTipoAvionId(1)
+        setTipoAvionId(0)
         setCapacidadAsientos(0)
     }
 
@@ -63,16 +64,11 @@ export default function RegistrarAviones() {
 
     useEffect(() => {
         cargarDatos()
-        // peticionesAuth.get(`/aerolineas/${params.id}/aviones`).then((res) => setAviones(res.data))
     }, [])
 
     if (cargando) {
         return (
-            <div className="min-h-screen w-full bg-white">
-                <h1 className="text-center text-2xl text-gray-800 mb-10">
-                    Cargando aerolinea
-                </h1>
-            </div>
+            <Cargando/>
         )
     }
 
@@ -107,6 +103,7 @@ export default function RegistrarAviones() {
                                 onChange={(e) => handlerTipoAvion(e)}
                                 className="w-full rounded-xl bg-gray-200 px-4 py-3 text-sm text-gray-700 outline-none appearance-none cursor-pointer"
                             >
+                                <option value="" selected>Selecciona el tipo de avion</option>
                                 <option value="1">Boeing 737</option>
                                 <option value="2">Airbus A320</option>
                                 <option value="3">Boeing 777</option>
